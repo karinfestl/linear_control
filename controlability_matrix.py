@@ -1,20 +1,22 @@
 import numpy as np
 
 # matrix definitions
-A = np.array([[0, 1, 0, 0],[0,0,-1,0],[0,0,0,1],[0,0,5,0]])
-b = np.array([0,1,0,-2])
-c = [1,0,0,0]
+A = np.array([[0, 1, 0, 0],
+              [0, 0, -1, 0],
+              [0, 0, 0, 1],
+              [0, 0, 5, 0]])
+b = np.array([0, 1, 0, -2])
 
 # print the A matrix
 print("A")
 print(A)
 print("A^2")
-print(A@A)
+print(A @ A)
 print("A^3")
-print(A@A@A)
+print(A @ A @ A)
 
 # compute the controlability matrix
-C = np.vstack((b, A@b, A@A@b, (A^3)@b))
+C = np.hstack((b, A @ b, A @ A @ b, (A @ A @ A) @ b))
 print("C")
 print(C)
 
