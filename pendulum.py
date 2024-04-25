@@ -41,7 +41,9 @@ class Pendulum():
         :param cntrl_u: control input u
         :return: state
         """
-        self.x = self.x + 0.  # TODO: update the state according to linear system dynamics dot x = Ax + bu
+        self.x = self.x + np.array([[0.1],[0.1]])*np.sin(self.log_idx*0.1)
+        # TODO: update the state according to linear system dynamics dot x = Ax + bu
+        # the above is just some random update so you get a video and plots
 
         if not self.linear:
             pass  # TODO: Bonus: update the state with nonlinear dynamics
