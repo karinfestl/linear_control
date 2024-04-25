@@ -1,6 +1,9 @@
 import numpy as np
 
-def controlability_matrix(A, b): # TODO: we can easily generalize this to nxn matrix
+
+def controlability_matrix(A, b):  # TODO: Bonus Exercise 2: generalize to nxn matrix
+    """ return the controlability  matrix """
+    C = np.zeros(A.shape)
     if len(b) == 4:
         C = np.hstack((b, A @ b, A @ A @ b, (A @ A @ A) @ b))
     if len(b) == 3:
@@ -11,6 +14,7 @@ def controlability_matrix(A, b): # TODO: we can easily generalize this to nxn ma
 
 
 def characteristic_polynomial(A):
+    """ return alpha values of the characteristic polynom e.g. alpha_0*s^2+alpha_1*s+alpha_0 """
     eigenvalues = np.linalg.eigvals(A)
     alpha = np.poly(eigenvalues)  # Find the coefficients of a polynomial with the given sequence of roots.
     print("lambda = {0}".format(np.polynomial.Polynomial.fromroots(eigenvalues)))

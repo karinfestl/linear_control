@@ -26,6 +26,7 @@ class Pendulum():
         g = 9.81
         self.A = np.array([[0, 1], [-g / length, 0]])
         self.b = np.array([[0], [g / length]])
+
         self.c = np.array([[1, 0]])
         self.l = length
         self.linear = linear
@@ -34,16 +35,16 @@ class Pendulum():
         self.x = x0
         self.y = self.c @ self.x
 
-    def step(self, cntrl_u, obs_e=0):
-        """ increment the system state """
-        if self.linear:  # the pendulum is modeled by linear dynamics
-            dx = self.A @ self.x + self.b * cntrl_u + obs_e
-            self.x += dx * self.dt  # this is not the nice way! there are discretization techniques for linear systems
-        else:  # the pendulum is modeled by nonlinear dynamics
-            phi = (self.x - cntrl_u)[0, 0] / self.l
-            ddx = - 9.81 * np.tan(phi)
-            dx = self.x[1, 0]
-            self.x += np.array([[dx], [ddx]]) * self.dt
+    def step(self, cntrl_u: float):
+        """
+        increment the system state
+        :param cntrl_u: control input u
+        :return: state
+        """
+        self.x = self.x + 0.  # TODO: update the state according to linear system dynamics dot x = Ax + bu
+
+        if not self.linear:
+            pass  # TODO: Bonus: update the state with nonlinear dynamics
 
         self.y = self.c @ self.x
 
@@ -55,6 +56,9 @@ class Pendulum():
         return self.x
 
     def plot(self, ax_t=None, ax_x=None, suffix=''):
+        """ plot the results """
+        # nothing to do here, plots should be fine
+
         t_range = np.arange(0., self.dt * self.steps, self.dt)
 
         if ax_t is None:
@@ -79,6 +83,8 @@ class Pendulum():
         return ax_t, ax_x
 
     def create_video(self):
+        """ plot the results """
+        # nothing to do here, video should be fine
         t_range = np.arange(0., self.dt * self.steps, self.dt)
         fig, ax = plt.subplots(1, figsize=(10, 5))
         ax.set_xlim([-self.l, self.l])
@@ -104,24 +110,8 @@ class Pendulum():
 
 def compute_feedback_gain(A, b, eigenvalues_f):
     from controllable_canonical_form import controlability_matrix, characteristic_polynomial
-    # eigenvalues_f = [complex(-1.5, 0.5), complex(-1.5, -0.5), complex(-1, 1), complex(-1, -1)]  # desired eigenvalues
 
-    ''' compute transformation '''
-    C = controlability_matrix(A, b)
-    alpha = characteristic_polynomial(A)
-
-    Cbarinv = np.eye(2)
-    Cbarinv[0, 1] = alpha[1]
-
-    Pinv = C @ Cbarinv
-    P = np.linalg.inv(Pinv)
-
-    ''' compute feedback gain '''
-    alphabar = np.poly(eigenvalues_f)
-
-    kbar = alphabar[1:] - alpha[1:]
-    kbar = np.expand_dims(kbar, 0)
-    k = kbar @ P
+    # TODO: Exercise 2 compute the feedback gain using the controllable canonical form
 
     return k
 
@@ -135,24 +125,19 @@ if __name__ == '__main__':  # this code is only used when we directly execute th
 
     pendulum = Pendulum(length=3, x0=np.array([[1.], [0.]]), linear=False, dt=dt,
                         steps=steps)  # create an instance of the pendulum
-    pendulum_obs = Pendulum(length=3, x0=np.array([[0.], [0.]]), linear=True, dt=dt,
-                            steps=steps)  # create an instance of the pendulum
 
-    k = np.array([[-1., -1.]])  # define the control feedback
     l = np.array([[-2], [-2]])  # define the observer feedback
 
+    # TODO: Exercise 2 define desired eigenvalues
     # k = compute_feedback_gain(pendulum.A, pendulum.b, eigenvalues_f=[complex(-1.5, 0.1), complex(-1.5, -0.1)])
-    print("k {0}".format(k))
+
 
     ''' simulation '''
     for t in t_range:
-        u = k @ pendulum_obs.x
-        obs_e = l @ (pendulum_obs.y - pendulum.y)
+        u = 0. # TODO: compute the control feedback using pendulum.x
         pendulum.step(u)
-        pendulum_obs.step(u, obs_e)
 
     ''' visualization '''
     ax_t, ax_x = pendulum.plot()
-    pendulum_obs.plot(ax_t, ax_x, suffix='obs')
     pendulum.create_video()
     plt.show()
