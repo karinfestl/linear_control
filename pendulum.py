@@ -24,8 +24,10 @@ class Pendulum():
 
         ''' system definition '''
         g = 9.81
-        self.A = np.array([[0, 1], [-g / length, 0]])
-        self.b = np.array([[0], [g / length]])
+        self.A = np.array([[0, 1],
+                           [-g / length, 0]])
+        self.b = np.array([[0],
+                           [g / length]])
         self.c = np.array([[1, 0]])
         self.l = length
         self.linear = linear
@@ -45,7 +47,7 @@ class Pendulum():
             dx = self.x[1, 0]
             self.x += np.array([[dx], [ddx]]) * self.dt
 
-        self.y = self.c @ self.x
+        self.y = (self.c @ self.x)
 
         ''' logging '''
         self.log_idx += 1
@@ -138,16 +140,16 @@ if __name__ == '__main__':  # this code is only used when we directly execute th
     pendulum_obs = Pendulum(length=3, x0=np.array([[0.], [0.]]), linear=True, dt=dt,
                             steps=steps)  # create an instance of the pendulum
 
-    k = np.array([[-2., -1.]])  # define the control feedback
+    k = np.array([[-2., -1.]]) * 0  # define the control feedback
     l = np.array([[-2], [-2]])  # define the observer feedback
-    r = 1.
+    r = 0.
 
-    # k = compute_feedback_gain(pendulum.A, pendulum.b, eigenvalues_f=[complex(-1.5, 0.1), complex(-1.5, -0.1)])
+    k = -compute_feedback_gain(pendulum.A, pendulum.b, eigenvalues_f=[complex(-1.5, 0.1), complex(-1.5, -0.1)])
     print("k {0}".format(k))
 
     ''' simulation '''
     for t in t_range:
-        u = k @ pendulum_obs.x + r * (1-k[0,0])
+        u = k @ np.array([[pendulum.y[0,0]], [pendulum_obs.x[1,0]]]) + r * (1 - k[0, 0])
         obs_e = l @ (pendulum_obs.y - pendulum.y)
         pendulum.step(u)
         pendulum_obs.step(u, obs_e)

@@ -27,20 +27,27 @@ if __name__ == '__main__':
     c = [1, 0, 0, 0]
     eigenvalues_f = [complex(-1.5, 0.5), complex(-1.5, -0.5), complex(-1, 1), complex(-1, -1)]  # desired eigenvalues
 
+    A = np.array([[0, 1],
+              [-1/3, 0]])
+    b = np.array([[0, 1/3]]).T
+
     ''' compute transformation '''
     C = controlability_matrix(A, b)
     alpha = characteristic_polynomial(A)
 
-    Cbarinv = np.eye(4)
-    Cbarinv[0, 1] = Cbarinv[1, 2] = Cbarinv[2, 3] = alpha[1]
-    Cbarinv[0, 2] = Cbarinv[1, 3] = alpha[2]
-    Cbarinv[0, 3] = alpha[3]
+    #Cbarinv = np.eye(4)
+    #   Cbarinv[0, 1] = Cbarinv[1, 2] = Cbarinv[2, 3] = alpha[1]
+    #  Cbarinv[0, 2] = Cbarinv[1, 3] = alpha[2]
+    # Cbarinv[0, 3] = alpha[3]
+
+    Cbarinv = np.eye(2)
+    Cbarinv[0,1] = alpha[1]
 
     Pinv = C @ Cbarinv
     P = np.linalg.inv(Pinv)
 
     ''' compute feedback gain '''
-    alphabar = np.poly(eigenvalues_f)
+    alphabar = np.poly(eigenvalues_f[:2])
 
     kbar = alphabar[1:] - alpha[1:]
     kbar = np.expand_dims(kbar, 0)
